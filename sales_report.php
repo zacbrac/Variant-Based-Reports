@@ -1,8 +1,8 @@
 <?php
 date_default_timezone_set('America/Los_Angeles');
-require 'db_connect.php';
-include 'functions.php';
-include 'IntervalMakerClass.php';
+require 'db/db_connect.php';
+include 'includes/functions.php';
+include 'includes/IntervalMakerClass.php';
 
 error_reporting(E_ALL);
 
@@ -39,8 +39,14 @@ foreach ($first_wave as $key => $product) {
 
 		if ($products !== null) {
 			foreach ($products as $product_inside) {
-				if ($product['variant_code'] != '' && $product['variant_code'] == $product_inside['variant_code'] || strpos($product['line_id'], $product_inside['line_id']) !== false) {
-					$row[] = $product_inside['quantity'];
+				if ($product['variant_code'] != '' && $product['variant_code'] == $product_inside['variant_code']) {
+					$row[] = $product_inside['quantity'] . ' first if line_id = ' . $product_inside['line_id'];
+					$match_found = true;
+				} elseif (strpos($product['line_id'], $product_inside['line_id']) !== false) {
+					$row[] = $product_inside['quantity'] . ' second if line_id = ' . $product_inside['line_id'];
+					$match_found = true;
+				} elseif ($product_inside['attr_id'] == '' && $product_inside['attr_code'] == '' && $product_inside['option_id'] == '' && $product_inside['variant_code'] == '' && $product_inside['product_id'] == $product['product_id']) {
+					$row[] = $product_inside['quantity'] . ' third if line_id = ' . $product_inside['line_id'];
 					$match_found = true;
 				}
 			}

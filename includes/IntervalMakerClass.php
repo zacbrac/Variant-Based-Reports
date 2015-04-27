@@ -39,7 +39,7 @@ class IntervalMaker {
 			}
 
 		} else {
-			$times[] = [$startdate, $finishdate];
+			$times[] = array($startdate, $finishdate);
 		}
 
 		return $times;
@@ -58,8 +58,8 @@ class IntervalMaker {
 
 		if ($startdate !== $finishdate) {
 			//ADDS FIRST TWO DATES
-			$timestamps[] = [$startdate, $nextdate];
-			$timestamps[] = [$nextdate, strtotime($interval, $nextdate)];
+			$timestamps[] = array($startdate, $nextdate);
+			$timestamps[] = array($nextdate, strtotime($interval, $nextdate));
 			$nextdate2 = '';
 
 			if ($nextdate > $finishdate) {
@@ -70,12 +70,12 @@ class IntervalMaker {
 					$nextdate = strtotime($interval, $nextdate);
 					$nextdate2 = strtotime($interval, $nextdate);
 
-					$timestamps[] = [$nextdate, $nextdate2];
+					$timestamps[] = array($nextdate, $nextdate2);
 				}
 			}
 
 		} else {
-			$timestamps[] = [$startdate, $finishdate];
+			$timestamps[] = array($startdate, $finishdate);
 		}
 
 		return $timestamps;
