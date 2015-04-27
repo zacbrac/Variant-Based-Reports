@@ -14,7 +14,7 @@ Example Setup:
 	<mvt:assign name="l.settings:finishdate" value="l.settings:order:orderdate" />
 </mvt:foreach>
 
-<mvt:call action = "'http://mm9.mivatest.com/php/sales_report/sales_report.php'" method = "'POST'" fields = "'
+<mvt:call action = "'ABSOLUTE_LOCATION_OF_sales_report.php'" method = "'POST'" fields = "'
 l.settings:startdate,
 l.settings:finishdate,
 l.settings:desired_interval
