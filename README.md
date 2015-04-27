@@ -4,7 +4,7 @@ Runs a variant based product sales report given a start date, end date, and desi
 Outputs in csv format, can be adjusted to just provide array of information
 
 Example Setup:
-'''
+```
 <mvt:do file="g.module_library_utilities" name="l.settings:success" value="QuickSortArray(l.settings:admin_order:orders, ':id',1)" />
 
 <mvt:assign name="l.settings:startdate" value="l.settings:admin_order:orders[1]:orderdate" />
@@ -21,4 +21,4 @@ l.settings:desired_interval
 '" >
 <mvt:eval expr="s.callvalue" />
 </mvt:call>
-'''
+```
