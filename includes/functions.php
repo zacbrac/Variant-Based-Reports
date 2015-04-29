@@ -15,15 +15,17 @@ function get_variant_codes($all_products_merged, PDO $db) {
 	//Go through each product and assign variant_code
 	foreach ($all_products_merged as &$product) {
 		if ($product['option_id'] != '') {
-
+			$queries = array();
 			$option_ids = explode(',', $product['option_id']);
 			$attr_ids = explode(',', $product['attr_id']);
-
 			if (count($option_ids) == count($attr_ids)) {
-				$count_less_1 = count($option_ids) - 1;
 				for ($i = 0; $i < count($option_ids); $i++) {
-					$rest_of_query = '(s01_ProductVariants.option_id = ' . $option_ids[$i] . ' AND s01_ProductVariants.attr_id = ' . $attr_ids[$i] . ') GROUP BY s01_ProductVariants.variant_id HAVING COUNT(*) > ' . $count_less_1;
+					$queries[] = '(s01_ProductVariants.option_id = ' . $option_ids[$i] . ' AND s01_ProductVariants.attr_id = ' . $attr_ids[$i] . ')';
 				}
+				$count_less_1 = count($option_ids) - 1;
+				$rest_of_query = implode(' OR ', $queries) . ' GROUP BY s01_ProductVariants.variant_id HAVING COUNT(*) > ' . $count_less_1;
+			} else {
+				$rest_of_query = implode(' OR ', $queries);
 			}
 			$variant_code = $db->prepare(
 				'SELECT s01_Products.code
@@ -35,15 +37,9 @@ function get_variant_codes($all_products_merged, PDO $db) {
 				WHERE ' . $rest_of_query);
 			$variant_code->execute();
 			$result = $variant_code->fetch(PDO::FETCH_ASSOC);
-			if ($result['code'] === null) {
-				$product['variant_code'] = '';
-			} else {
-				$product['variant_code'] = $result['code'];
-			}
-
+			$product['variant_code'] = $result['code'];
 		}
 	}
-
 	return $all_products_merged;
 }
 
