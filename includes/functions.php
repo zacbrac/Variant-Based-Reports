@@ -46,8 +46,8 @@ function get_variant_codes($all_products_merged, PDO $db) {
 function get_non_variant_products($all_products, $all_variant_products) {
 	$count = count($all_products) - 1;
 	$second_count = count($all_variant_products) - 1;
-	for ($i = 0; $i < $count; $i++) {
-		for ($j = 0; $j < $second_count; $j++) {
+	for ($i = 0; $i <= $count; $i++) {
+		for ($j = 0; $j <= $second_count; $j++) {
 			if ($all_products[$i]['line_id'] == $all_variant_products[$j]['line_id']) {
 				$captured[] = $i;
 			}
