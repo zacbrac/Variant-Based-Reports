@@ -4,6 +4,8 @@ Runs a variant based product sales report given a start date, end date, and desi
 Outputs in CSV format, can be adjusted to just provide array of information
 
 Example Setup:
+
+Requires `db/db_connect.php` file if in a different directory alter the require on line 3 of  `sales_report.php`
 ```HTML
 <mvt:do file="g.module_library_utilities" name="l.settings:success" value="QuickSortArray(l.settings:admin_order:orders, ':id',1)" />
 
