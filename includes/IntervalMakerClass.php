@@ -4,17 +4,8 @@ date_default_timezone_set('America/Los_Angeles');
  * IntervalMaker
  */
 class IntervalMaker {
-	// public function format_timestamps($startdate, $finishdate) {
-	// 	$day1 = strtotime(date('Y:m:d', $startdate) . ' 00:00:00');
-	// 	$day2 = strtotime(date('Y:m:d', $finishdate) . ' 00:00:00');
-	// 	return [$day1, $day2];
-	// }
 
 	public function createDates($startdate, $finishdate, $desired_interval, $format = 'm/d/Y H:i:s', $timezone = 'PST') {
-
-		// $formatted_timestamps = $this->format_timestamps($startdate, $finishdate);
-		// $startdate = $formatted_timestamps[0];
-		// $finishdate = $formatted_timestamps[1];
 
 		$interval = $this->setInterval($desired_interval);
 
@@ -46,10 +37,6 @@ class IntervalMaker {
 	}
 
 	public function createTimestamps($startdate, $finishdate, $desired_interval) {
-
-		// $formatted_timestamps = $this->format_timestamps($startdate, $finishdate);
-		// $startdate = $formatted_timestamps[0];
-		// $finishdate = $formatted_timestamps[1];
 
 		$interval = $this->setInterval($desired_interval);
 
@@ -90,10 +77,3 @@ class IntervalMaker {
 		return $interval;
 	}
 }
-
-// $IntervalMaker = new IntervalMaker;
-// $dates = $IntervalMaker->createDates(1429488000, 1429747200, 'months');
-// $timestamps = $IntervalMaker->createTimestamps(1429488000, 1429747200, 'months');
-// echo date('m/d/Y H:i:s', $timestamps[0][0]) . "\n";
-// echo date('m/d/Y H:i:s', $timestamps[0][1]) . "\n";
-// var_export($timestamps);
