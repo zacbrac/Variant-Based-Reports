@@ -13,13 +13,7 @@ $timestamps = $myIntervalMaker->createTimestamps($_POST['settings:startdate'], $
 $first_wave = get_products_between_interval($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
 $first_wave = merge_variants($first_wave);
 
-$first_row[] = 'PRODUCT_CODE';
-$first_row[] = 'VARIANT_CODE';
-$first_row[] = 'PRODUCT_NAME';
-
-// DEBUG
-// echo '-------------- ENTIRE INTERVALS PRODUCTS --------------<BR>';
-// var_dump($first_wave);
+$first_row[] = array('PRODUCT_CODE','VARIANT_CODE','PRODUCT_NAME');
 
 foreach ($first_wave as $key => $product) {
     $row = array();
@@ -32,10 +26,6 @@ foreach ($first_wave as $key => $product) {
     foreach ($timestamps as $key2 => $timestamp) {
         $products = get_products_between_interval($timestamp[0], $timestamp[1], $db);
         $products = merge_variants($products);
-
-        // DEBUG
-        // echo '-------------- SUB-INTERVAL ' . $key2 . ' PRODUCTS --------------<BR>';
-        // var_dump($products);
 
         if ($products !== null) {
             foreach ($products as $product_inside) {

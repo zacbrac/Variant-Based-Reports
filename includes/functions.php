@@ -18,8 +18,11 @@ function get_variant_codes($all_products_merged, PDO $db) {
             $queries = array();
             $option_ids = explode(',', $product['option_id']);
             $attr_ids = explode(',', $product['attr_id']);
+
+            $count = count($option_ids);
+
             if (count($option_ids) == count($attr_ids)) {
-                for ($i = 0; $i < count($option_ids); $i++) {
+                for ($i = 0; $i < $count; $i++) {
                     $queries[] = '(s01_ProductVariants.option_id = ' . $option_ids[$i] . ' AND s01_ProductVariants.attr_id = ' . $attr_ids[$i] . ')';
                 }
                 $count_less_1 = count($option_ids) - 1;
@@ -44,8 +47,11 @@ function get_variant_codes($all_products_merged, PDO $db) {
 }
 
 function get_non_variant_products($all_products, $all_variant_products) {
+    $captured = array();
     $count = count($all_products);
     $second_count = count($all_variant_products);
+
+
     for ($i = 0; $i < $count; $i++) {
         for ($j = 0; $j < $second_count; $j++) {
             if ($all_products[$i]['line_id'] == $all_variant_products[$j]['line_id']) {
@@ -97,6 +103,8 @@ function merge_non_variant_products(&$non_variant_products) {
  * @param integer $finishdate
  */
 function get_variant_products($startdate, $finishdate, PDO $db) {
+    $all_variant_products = array();
+
     $variant_products = $db->prepare(
         "SELECT s01_Orders.orderdate,
                 s01_OrderItems.line_id,
@@ -161,6 +169,8 @@ function filter_non_variants($all_products_merged) {
 function get_products_between_interval($startdate, $finishdate, PDO $db) {
     $startdate = (int) $startdate;
     $finishdate = (int) $finishdate;
+    $allproducts = array();
+
     $all_products = $db->prepare(
         "SELECT s01_Orders.orderdate,
                 s01_OrderItems.line_id,
