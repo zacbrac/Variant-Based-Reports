@@ -38,7 +38,8 @@ class IntervalMaker {
         if ($startdate === $finishdate || $nextdate > $finishdate) {
             return array(array($startdate, $finishdate));
         } else {
-			//ADDS FIRST TWO DATES
+			$timestamps = array();
+            //ADDS FIRST TWO DATES
 			$timestamps[] = array($startdate, $nextdate);
 			$timestamps[] = array($nextdate, strtotime($interval, $nextdate));
 			$nextdate2 = '';
@@ -73,8 +74,3 @@ class IntervalMaker {
 	function __construct() {
 	}
 }
-
-$timemaker = new IntervalMaker();
-$dates = $timemaker->createDates(1388534400, 1433788898, 'months');
-
-var_dump($dates);
