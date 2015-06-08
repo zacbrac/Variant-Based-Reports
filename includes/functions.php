@@ -92,6 +92,10 @@ function merge_non_variant_products(&$non_variant_products) {
     return array_values($non_variant_products);
 }
 
+/**
+ * @param integer $startdate
+ * @param integer $finishdate
+ */
 function get_variant_products($startdate, $finishdate, PDO $db) {
     $variant_products = $db->prepare(
         "SELECT s01_Orders.orderdate,
