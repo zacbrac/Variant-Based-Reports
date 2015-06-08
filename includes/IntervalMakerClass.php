@@ -1,8 +1,8 @@
 <?php
 date_default_timezone_set('America/Los_Angeles');
 /**
-     * IntervalMaker
-     */
+* IntervalMaker
+*/
 class IntervalMaker {
 
     public function createDates($startdate, $finishdate, $desired_interval, $format = 'm/d/Y H:i:s', $timezone = 'PST') {
