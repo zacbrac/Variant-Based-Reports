@@ -6,7 +6,8 @@ date_default_timezone_set('America/Los_Angeles');
 class IntervalMaker {
 
 	public function createDates($startdate, $finishdate, $desired_interval, $format = 'm/d/Y H:i:s', $timezone = 'PST') {
-
+		$times = array();
+		
 		$interval = $this->setInterval($desired_interval);
 
 		//DETERMINES INITIAL NEXT DATE, THIS WILL BE RESET IN THE WHILE LOOP
@@ -37,6 +38,7 @@ class IntervalMaker {
 	}
 
 	public function createTimestamps($startdate, $finishdate, $desired_interval) {
+		$timestamps = array();
 
 		$interval = $this->setInterval($desired_interval);
 
@@ -69,11 +71,19 @@ class IntervalMaker {
 	}
 
 	protected function setInterval($desired_interval) {
-		if ($desired_interval == 'hours') {$interval = "+1 hour";}
-		if ($desired_interval == 'days') {$interval = "+1 day";}
-		if ($desired_interval == 'weeks') {$interval = "+1 week";}
-		if ($desired_interval == 'months') {$interval = "+1 month";}
-		if ($desired_interval == 'years') {$interval = "+1 year";}
-		return $interval;
+		switch ($desired_interval) {
+			case 'hours':
+				return '+1 hour';
+			case 'days':
+				return '+1 day';
+			case 'weeks':
+				return '+1 week';
+			case 'months':
+				return '+1 month';
+			case 'years':
+				return '+1 year';
+			default:
+				return null;
+		}
 	}
 }
