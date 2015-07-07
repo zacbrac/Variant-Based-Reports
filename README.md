@@ -2,8 +2,8 @@
 
 There are 3 versions currently available
 
-Sales: Interval based, use `intervalBased`
+Sales: Interval based, use [`intervalBased`](intervalBased/)
 
-Sales: No Intervals, use `noIntervals`
+Sales: No Intervals, use [`noIntervals`](noIntervals/)
 
-Shipment Picklist, use `shipmentPicklist`
+Shipment Picklist, use [`shipmentPicklist`](shipmentPicklist/)
