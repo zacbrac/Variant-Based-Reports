@@ -1,26 +1,9 @@
 <?php
-require 'db/db_connect.php';
+require 'db/dbConnect.php';
 require 'functions.php';
 
 $products       = getProductsBetweenInterval($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
 $products       = mergeVariants($products);
-$shipping_total = getShippingTotals($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
-$coupon_total   = getCouponTotals($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
-
-$eol = "\n";
-// $eol = '<br>';
-
-// var_dump($shipping_total);
-// var_dump($coupon_total);
-
-$products_price_total = $products_quantity_total = 0;
-
-$DateTime = new DateTime();
-
-// echo ',,,"$' . number_format($products_quantity_total, 2) . '","$' . number_format($products_price_total, 2) . '"' . $eol;
-// echo $eol . $eol;
-// echo 'Shipping,Total Shipping Revenue,,,"$' . number_format($shipping_total, 2) . '"' . $eol;
-// echo 'Coupon,Total Coupon Discounts,,,"($' . number_format($coupon_total, 2) . ')"' . $eol;
 
 ?>
 <!DOCTYPE html>
@@ -37,31 +20,37 @@ $DateTime = new DateTime();
         </tr>
         <tr><td colspan="6"></td></tr>
         <tr>
-            <td>Product Code</td>
-            <td>Variant Code</td>
-            <td>Name</td>
-            <td>Quantity Sold</td>
-            <td>Revenue</td>
-            <td>Warranty Term</td>
+            <td colspan="2">Quantity</td>
+            <td>SKU /Item Name</td>
+            <td>Options 1 & 2</td>
+            <td>Options 3 & 4</td>
+            <td>Options 5 & 6</td>
         </tr>
-        <?php
-foreach ($products as $product) {
-	$products_price_total += $product['price'];
-	$products_quantity_total += $product['quantity'];
-	?>
+        <?php foreach ($products as $product) { ?>
             <tr>
-                <td><?php echo $product['code'];?></td>
-                <td><?php echo $product['variant_code'];?></td>
-                <td><?php echo $product['name'];?></td>
-                <td><?php echo $product['quantity'];?></td>
-                <td><?php echo '$' . number_format($product['price'], 2);?></td>
-                <td><?php echo getCustomFieldValue($product['product_id'], 1, $db);?></td>
+                <td align="middle"><?php echo $product['quantity'];?></td>
+                <td>
+                    <span class="sku">
+                        <?php echo $product['product_id'];?>
+                    </span>                    
+                    <span class="name">
+                        <?php echo $product['name'];?>
+                    </span>
+                    <small>Notes</small>
+                </td>
+                <td valign="middle">Format:</td>
+                <td>CD</td>
+                <td valign="middle">QOH:</td>
+                <td><?php echo $product['quantity']; ?></td>
             </tr>
-        <?php }
-?>
-        <tr>
-
-        </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td valign="middle">Author:</td>
+                <td align="middle">Someone</td>
+                <td valign="middle">Section:</td>
+                <td align="middle">Books</td>
+            </tr>
+        <?php } ?>
     </table>
 </body>
 </html>
