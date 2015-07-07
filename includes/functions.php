@@ -7,7 +7,7 @@ function mergeVariantParts($products) {
     for ($i = 0; $i < $count; $i++) {
 
         if ($products[$i + 1]['line_id'] == $products[$i]['line_id']) {
-            $products[$i + 1]['attr_id']   = $products[$i]['attr_id'] . ',' . $products[$i + 1]['attr_id'];
+            $products[$i + 1]['attr_id'] = $products[$i]['attr_id'] . ',' . $products[$i + 1]['attr_id'];
             $products[$i + 1]['option_id'] = $products[$i]['option_id'] . ',' . $products[$i + 1]['option_id'];
 
             unset($products[$i]);
@@ -27,9 +27,9 @@ function getVariantCodes($all_products_merged, PDO $db) {
 
         if ($product['option_id'] != '') {
 
-            $queries    = array();
+            $queries = array();
             $option_ids = explode(',', $product['option_id']);
-            $attr_ids   = explode(',', $product['attr_id']);
+            $attr_ids = explode(',', $product['attr_id']);
 
             $count = count($option_ids);
 
@@ -39,7 +39,7 @@ function getVariantCodes($all_products_merged, PDO $db) {
                     $queries[] = '(s01_ProductVariants.option_id = ' . $option_ids[$i] . ' AND s01_ProductVariants.attr_id = ' . $attr_ids[$i] . ')';
                 }
 
-                $count_less_1  = count($option_ids) - 1;
+                $count_less_1 = count($option_ids) - 1;
                 $rest_of_query = implode(' OR ', $queries) . ' GROUP BY s01_ProductVariants.variant_id HAVING COUNT(*) > ' . $count_less_1;
 
             } else {
@@ -49,7 +49,8 @@ function getVariantCodes($all_products_merged, PDO $db) {
             }
 
             $variant_code = $db->prepare(
-                'SELECT s01_Products.code
+                'SELECT s01_Products.code,
+                        s01_ProductVariants.variant_id
                 FROM s01_ProductVariants
                 INNER JOIN s01_ProductVariantParts
                 ON s01_ProductVariantParts.variant_id=s01_ProductVariants.variant_id
@@ -62,6 +63,7 @@ function getVariantCodes($all_products_merged, PDO $db) {
             $result = $variant_code->fetch(PDO::FETCH_ASSOC);
 
             $product['variant_code'] = $result['code'];
+            $product['variant_id'] = $result['variant_id'];
 
         }
 
@@ -73,8 +75,8 @@ function getVariantCodes($all_products_merged, PDO $db) {
 
 function getNonVariantProducts($all_products, $all_variant_products) {
 
-    $captured     = array();
-    $count        = count($all_products);
+    $captured = array();
+    $count = count($all_products);
     $second_count = count($all_variant_products);
 
     for ($i = 0; $i < $count; $i++) {
@@ -100,10 +102,11 @@ function getNonVariantProducts($all_products, $all_variant_products) {
 function addBlankVariantCodes($non_variant_products) {
 
     foreach ($non_variant_products as &$product) {
-        $product['attr_id']      = '';
-        $product['attr_code']    = '';
-        $product['option_id']    = '';
+        $product['attr_id'] = '';
+        $product['attr_code'] = '';
+        $product['option_id'] = '';
         $product['variant_code'] = '';
+        $product['variant_id'] = '';
     }
 
     return $non_variant_products;
@@ -122,8 +125,8 @@ function mergeNonVariantProducts(&$non_variant_products) {
 
             if ($non_variant_products[$i]['product_id'] == $non_variant_products[$j]['product_id']) {
                 $non_variant_products[$j]['quantity'] = $non_variant_products[$i]['quantity'] + $non_variant_products[$j]['quantity'];
-                $non_variant_products[$j]['price']    = $non_variant_products[$i]['price'] + $non_variant_products[$j]['price'];
-                $non_variant_products[$j]['line_id']  = $non_variant_products[$i]['line_id'] . ',' . $non_variant_products[$j]['line_id'];
+                $non_variant_products[$j]['price'] = $non_variant_products[$i]['price'] + $non_variant_products[$j]['price'];
+                $non_variant_products[$j]['line_id'] = $non_variant_products[$i]['line_id'] . ',' . $non_variant_products[$j]['line_id'];
 
                 unset($non_variant_products[$i]);
 
@@ -188,7 +191,7 @@ function mergeVariants(&$variant_products) {
             if ($variant_products[$i]['variant_code'] == $variant_products[$j]['variant_code'] && $variant_products[$i]['variant_code'] !== '') {
 
                 $variant_products[$j]['quantity'] = $variant_products[$i]['quantity'] + $variant_products[$j]['quantity'];
-                $variant_products[$j]['price']    = $variant_products[$i]['price'] + $variant_products[$j]['price'];
+                $variant_products[$j]['price'] = $variant_products[$i]['price'] + $variant_products[$j]['price'];
 
                 unset($variant_products[$i]);
 
@@ -224,7 +227,7 @@ function filterNonVariants($all_products_merged) {
             if ($all_products_merged[$i]['variant_code'] == '' && $all_products_merged[$j]['variant_code'] == '' && $all_products_merged[$i]['product_id'] == $all_products_merged[$j]['product_id']) {
 
                 $all_products_merged[$j]['quantity'] = $all_products_merged[$i]['quantity'] + $all_products_merged[$j]['quantity'];
-                $all_products_merged[$j]['price']    = $all_products_merged[$i]['price'] + $all_products_merged[$j]['price'];
+                $all_products_merged[$j]['price'] = $all_products_merged[$i]['price'] + $all_products_merged[$j]['price'];
 
                 unset($all_products_merged[$i]);
 
@@ -250,8 +253,8 @@ function filterNonVariants($all_products_merged) {
 
 function getProductsBetweenInterval($startdate, $finishdate, PDO $db) {
 
-    $startdate   = (int) $startdate;
-    $finishdate  = (int) $finishdate;
+    $startdate = (int) $startdate;
+    $finishdate = (int) $finishdate;
     $allproducts = array();
 
     $all_products = $db->prepare(
@@ -270,13 +273,13 @@ function getProductsBetweenInterval($startdate, $finishdate, PDO $db) {
 
     $all_products->execute(array(':startdate' => $startdate, ':finishdate' => $finishdate));
 
-    $allProducts = $all_products->fetchAll(PDO::FETCH_ASSOC);
+    $all_products = $all_products->fetchAll(PDO::FETCH_ASSOC);
 
     //ALL VARIANT PRODUCTS IN THIS TIME INTERVAL
     $all_variant_products = getVariantProducts($startdate, $finishdate, $db);
 
     //ALL NON-VARIANT PRODUCTS IN THIS TIME INTERVAL
-    $non_variants = getNonVariantProducts($allProducts, $all_variant_products);
+    $non_variants = getNonVariantProducts($all_products, $all_variant_products);
 
     //ALL PRODUCTS MERGED AFTER INDIVIDUAL MERGING PROCESS HAS BEEN COMPLETED
     $merged_variants = mergeVariantParts($all_variant_products);
@@ -293,6 +296,7 @@ function getProductsBetweenInterval($startdate, $finishdate, PDO $db) {
         //GET VARIANT CODES
         $all_products_merged = getVariantCodes($all_products_merged, $db);
         $all_products_merged = filterNonVariants($all_products_merged);
+        $all_products_merged = mergeVariants($all_products_merged);
 
         return $all_products_merged;
 
@@ -345,5 +349,41 @@ function getCustomFieldValue($productId, $customFieldId, PDO $db) {
     $value = $query->fetch(PDO::FETCH_ASSOC);
 
     return $value['value'];
+
+}
+
+function getBasketInventory($productCode, PDO $db) {
+
+    $query = $db->prepare('SELECT SUM(quantity) as count FROM s01_BasketItems WHERE code = :product_code');
+
+    $query->execute(array(':product_code' => $productCode));
+
+    $result = $query->fetch(PDO::FETCH_ASSOC);
+
+    return $result['count'];
+
+}
+
+function getVariantBasketInventory($productCode, PDO $db, $variantId) {
+
+    $query = $db->prepare('SELECT SUM(quantity) as count FROM s01_BasketItems WHERE `code` = :product_code AND `variant_id` = :variant_id');
+
+    $query->execute(array(':product_code' => $productCode, ':variant_id' => $variantId));
+
+    $result = $query->fetch(PDO::FETCH_ASSOC);
+
+    return $result['count'];
+
+}
+
+function getInventory($productId, PDO $db) {
+
+    $query = $db->prepare('SELECT inventory FROM s01_InventoryProductCounts WHERE `product_id` = :product_id');
+
+    $query->execute(array(':product_id' => $productId));
+
+    $result = $query->fetch(PDO::FETCH_ASSOC);
+
+    return $result['inventory'];
 
 }
