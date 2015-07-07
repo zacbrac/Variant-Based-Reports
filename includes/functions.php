@@ -255,7 +255,6 @@ function getProductsBetweenInterval($startdate, $finishdate, PDO $db) {
 
     $startdate = (int) $startdate;
     $finishdate = (int) $finishdate;
-    $allproducts = array();
 
     $all_products = $db->prepare(
         'SELECT s01_Orders.orderdate,
