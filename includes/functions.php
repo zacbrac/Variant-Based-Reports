@@ -173,9 +173,9 @@ function getVariantProducts($startdate, $finishdate, PDO $db) {
 
     $variant_products->execute(array(':startdate' => $startdate, ':finishdate' => $finishdate));
 
-    $all_variant_products = $variant_products->fetchAll(PDO::FETCH_ASSOC);
+    $result = $variant_products->fetchAll(PDO::FETCH_ASSOC);
 
-    return $all_variant_products;
+    return $result;
 }
 
 function mergeVariants(&$variant_products) {
@@ -315,9 +315,9 @@ function getShippingTotals($startdate, $finishdate, PDO $db) {
 
     $shipping_totals->execute(array(':startdate' => $startdate, ':finishdate' => $finishdate));
 
-    $shipping_total = $shipping_totals->fetch(PDO::FETCH_ASSOC);
+    $result = $shipping_totals->fetch(PDO::FETCH_ASSOC);
 
-    return $shipping_total['SUM(s01_OrderCharges.amount)'];
+    return $result['SUM(s01_OrderCharges.amount)'];
 
 }
 
@@ -333,9 +333,9 @@ function getCouponTotals($startdate, $finishdate, PDO $db) {
 
     $coupon_totals->execute(array(':startdate' => $startdate, ':finishdate' => $finishdate));
 
-    $coupon_total = $coupon_totals->fetch(PDO::FETCH_ASSOC);
+    $result = $coupon_totals->fetch(PDO::FETCH_ASSOC);
 
-    return $coupon_total['SUM(s01_OrderCoupons.total)'];
+    return $result['SUM(s01_OrderCoupons.total)'];
 
 }
 
@@ -345,9 +345,9 @@ function getCustomFieldValue($productId, $customFieldId, PDO $db) {
 
     $query->execute(array(':field_id' => $customFieldId, ':prod_id' => $productId));
 
-    $value = $query->fetch(PDO::FETCH_ASSOC);
+    $result = $query->fetch(PDO::FETCH_ASSOC);
 
-    return $value['value'];
+    return $result['value'];
 
 }
 
