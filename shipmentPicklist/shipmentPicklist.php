@@ -60,7 +60,13 @@ $DateTime = new DateTime();
                 <td align="middle"><?php echo $product['quantity'];?></td>
                 <td>
                     <span class="sku">
-                        <?php echo $product['product_id'];?>
+                        <?php 
+                            if ($product['variant_code'] != '') {
+                                echo $product['variant_code'];
+                            } else {
+                                echo $product['code'];
+                            }                            
+                        ?>
                     </span>
                     <span class="name">
                         <?php echo $product['name'];?>
@@ -73,6 +79,7 @@ $DateTime = new DateTime();
                 <td valign="bottom">
                     <?php
                         if ($product['variant_id'] != 0) {
+                            echo 'variant';
                             echo (getVariantBasketInventory($product['code'], $db, $product['variant_id']) + getInventory($product['variant_id'], $db));
                         } else {
                             echo (getBasketInventory($product['code'], $db, $product['variant_id']) + getInventory($product['product_id'], $db));
