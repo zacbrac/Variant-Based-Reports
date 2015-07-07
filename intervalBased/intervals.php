@@ -1,7 +1,7 @@
 <?php
-require 'db/db_connect.php';
-include 'includes/functions.php';
-include 'includes/IntervalMaker.php';
+require '../db/dbConnect.php';
+include '../includes/functions.php';
+include '../includes/IntervalMaker.php';
 
 $StartDate = new DateTime();
 $StartDate->setTimestamp($_POST['settings:startdate']);
@@ -9,8 +9,23 @@ $StartDate->setTimestamp($_POST['settings:startdate']);
 $FinishDate = new DateTime();
 $FinishDate->setTimestamp($_POST['settings:finishdate']);
 
+switch ($_POST['settings:desired_interval']) {
+    case 'hours':
+        $interval = 'P1H';
+    case 'days':
+        $interval = 'P1D';
+    case 'weeks':
+        $interval = 'P1W';
+    case 'months':
+        $interval = 'P1M';
+    case 'years':
+        $interval = 'P1Y';
+    default:
+        $interval = null;
+}
+
 $MyIntervalMaker = new IntervalMaker();
-$times           = $MyIntervalMaker->createDates($StartDate, $FinishDate, new DateInterval('P1M'));
+$times           = $MyIntervalMaker->createDates($StartDate, $FinishDate, new DateInterval($interval));
 
 $timestamps_count = count($times);
 

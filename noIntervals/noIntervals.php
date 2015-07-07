@@ -1,6 +1,6 @@
 <?php
-require 'db/db_connect.php';
-require 'functions.php';
+require '../db/dbConnect.php';
+include '../includes/functions.php';
 
 $products       = getProductsBetweenInterval($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
 $products       = mergeVariants($products);
