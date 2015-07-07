@@ -1,9 +1,9 @@
 # Variant-Based-Reports
 
-Comes in 3 flavors so far 
+There are 3 versions currently available
 
-Interval based, use `intervalBased`
+Sales: Interval based, use `intervalBased`
 
-No Intervals, use `noIntervals`
+Sales: No Intervals, use `noIntervals`
 
 Shipment Picklist, use `shipmentPicklist`
