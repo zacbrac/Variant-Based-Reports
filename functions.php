@@ -1,6 +1,6 @@
 <?php
 function merge_variant_parts($products) {
-    $count = count($products);
+    $count = count($products) - 1;
     for ($i = 0; $i < $count; $i++) {
         if ($products[$i + 1]['line_id'] == $products[$i]['line_id']) {
             $products[$i + 1]['attr_id'] = $products[$i]['attr_id'] . ',' . $products[$i + 1]['attr_id'];
@@ -51,7 +51,6 @@ function get_non_variant_products($all_products, $all_variant_products) {
     $count = count($all_products);
     $second_count = count($all_variant_products);
 
-
     for ($i = 0; $i < $count; $i++) {
         for ($j = 0; $j < $second_count; $j++) {
             if ($all_products[$i]['line_id'] == $all_variant_products[$j]['line_id']) {
@@ -85,6 +84,7 @@ function merge_non_variant_products(&$non_variant_products) {
         for ($j = $i + 1; $j < $count; $j++) {
             if ($non_variant_products[$i]['product_id'] == $non_variant_products[$j]['product_id']) {
                 $non_variant_products[$j]['quantity'] = $non_variant_products[$i]['quantity'] + $non_variant_products[$j]['quantity'];
+                $non_variant_products[$j]['price'] = $non_variant_products[$i]['price'] + $non_variant_products[$j]['price'];
                 $non_variant_products[$j]['line_id'] = $non_variant_products[$i]['line_id'] . ',' . $non_variant_products[$j]['line_id'];
                 unset($non_variant_products[$i]);
                 $done = true;
@@ -111,6 +111,7 @@ function get_variant_products($startdate, $finishdate, PDO $db) {
                 s01_OrderItems.product_id,
                 s01_OrderItems.code,
                 s01_OrderItems.name,
+                s01_OrderItems.price,
                 s01_OrderItems.quantity,
                 s01_OrderOptions.attr_id,
                 s01_OrderOptions.attr_code,
@@ -136,6 +137,7 @@ function merge_variants(&$variant_products) {
         for ($j = $i + 1; $j < $count; $j++) {
             if ($variant_products[$i]['variant_code'] == $variant_products[$j]['variant_code'] && $variant_products[$i]['variant_code'] !== '') {
                 $variant_products[$j]['quantity'] = $variant_products[$i]['quantity'] + $variant_products[$j]['quantity'];
+                $variant_products[$j]['price'] = $variant_products[$i]['price'] + $variant_products[$j]['price'];
                 unset($variant_products[$i]);
                 $done = true;
                 break;
@@ -154,6 +156,7 @@ function filter_non_variants($all_products_merged) {
         for ($j = $i + 1; $j < $count; $j++) {
             if ($all_products_merged[$i]['variant_code'] == '' && $all_products_merged[$j]['variant_code'] == '' && $all_products_merged[$i]['product_id'] == $all_products_merged[$j]['product_id']) {
                 $all_products_merged[$j]['quantity'] = $all_products_merged[$i]['quantity'] + $all_products_merged[$j]['quantity'];
+                $all_products_merged[$j]['price'] = $all_products_merged[$i]['price'] + $all_products_merged[$j]['price'];
                 unset($all_products_merged[$i]);
                 $done = true;
                 break;
@@ -176,6 +179,7 @@ function get_products_between_interval($startdate, $finishdate, PDO $db) {
                 s01_OrderItems.line_id,
                 s01_OrderItems.product_id,
                 s01_OrderItems.code,
+                s01_OrderItems.price,
                 s01_OrderItems.name,
                 s01_OrderItems.quantity
                 FROM s01_Orders
@@ -206,4 +210,36 @@ function get_products_between_interval($startdate, $finishdate, PDO $db) {
         return $non_variants;
     }
 
+}
+
+function get_shipping_totals($startdate, $finishdate, PDO $db) {
+
+    $shipping_totals = $db->prepare(
+        "SELECT SUM(s01_OrderCharges.amount)
+            FROM s01_Orders
+            INNER JOIN s01_OrderCharges
+            ON s01_OrderCharges.order_id=s01_Orders.id
+            WHERE s01_Orders.orderdate >= $startdate AND s01_Orders.orderdate <= $finishdate"
+    );
+    $shipping_totals->execute();
+    while ($row = $shipping_totals->fetch(PDO::FETCH_ASSOC)) {
+        $shipping_total = $row;
+    }
+    return $shipping_total['SUM(s01_OrderCharges.amount)'];
+}
+
+function get_coupon_totals($startdate, $finishdate, PDO $db) {
+
+    $counpon_totals = $db->prepare(
+        "SELECT SUM(s01_OrderCoupons.total)
+            FROM s01_Orders
+            INNER JOIN s01_OrderCoupons
+            ON s01_OrderCoupons.order_id=s01_Orders.id
+            WHERE s01_Orders.orderdate >= $startdate AND s01_Orders.orderdate <= $finishdate"
+    );
+    $counpon_totals->execute();
+    while ($row = $counpon_totals->fetch(PDO::FETCH_ASSOC)) {
+        $counpon_total = $row;
+    }
+    return $counpon_total['SUM(s01_OrderCoupons.total)'];
 }
