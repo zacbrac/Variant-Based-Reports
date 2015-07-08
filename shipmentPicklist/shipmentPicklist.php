@@ -4,6 +4,24 @@ include '../includes/functions.php';
 
 $products = getProductsBetweenInterval($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
 
+$productNames = array();
+
+foreach ($products as $key => $product) {
+    
+    if ($product['variant_code'] != '') {
+    
+        $productNames[$key] = $product['variant_code'];
+
+    } else {
+        
+        $productNames[$key] = $product['code'];
+    
+    }
+
+}
+
+array_multisort($productNames, SORT_ASC, $products);
+
 $DateTime = new DateTime();
 
 ?>
@@ -17,12 +35,11 @@ $DateTime = new DateTime();
         }
 
         tr:first-of-type td {
-            border-top: 2px solid black;
-            border-bottom: 2px solid black;
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
         }
 
         td {
-            border-bottom: 1px solid black;
             padding: 10px;
         }
 
@@ -37,7 +54,15 @@ $DateTime = new DateTime();
         }
 
         .target td {
-            border-bottom: 0;
+            border-bottom: 1px solid #000;
+        }
+
+        .checkbox {
+            width: 50px;
+            height: 50px;
+            display: block;
+            margin: 0 auto;
+            border: 1px solid #000;
         }
 
     </style>
@@ -57,7 +82,10 @@ $DateTime = new DateTime();
         </tr>
         <?php foreach ($products as $product) { ?>
             <tr>
-                <td align="middle"><?php echo $product['quantity'];?></td>
+                <td align="middle">
+                    <?php echo $product['quantity'];?>
+                    <div class="checkbox"></div>
+                </td>
                 <td>
                     <span class="sku">
                         <?php 
@@ -69,17 +97,22 @@ $DateTime = new DateTime();
                         ?>
                     </span>
                     <span class="name">
-                        <?php echo $product['name'];?>
+                        <?php 
+                            if ($product['variant_name'] != '') {
+                                echo $product['variant_name'];
+                            } else {
+                                echo $product['name'];
+                            }
+                        ?>
                     </span>
                     <small>Notes</small>
                 </td>
                 <td valign="bottom">Format:</td>
-                <td valign="bottom"><?php echo getCustomFieldValue($product['product_id'], 1, $db); ?></td>
+                <td valign="bottom" align="middle"><?php echo getCustomFieldValue($product['product_id'], 1, $db); ?></td>
                 <td valign="bottom">QOH:</td>
-                <td valign="bottom">
+                <td valign="bottom" align="middle">
                     <?php
                         if ($product['variant_id'] != 0) {
-                            echo 'variant';
                             echo (getVariantBasketInventory($product['code'], $db, $product['variant_id']) + getInventory($product['variant_id'], $db));
                         } else {
                             echo (getBasketInventory($product['code'], $db, $product['variant_id']) + getInventory($product['product_id'], $db));

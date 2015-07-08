@@ -50,7 +50,8 @@ function getVariantCodes($all_products_merged, PDO $db) {
 
             $variant_code = $db->prepare(
                 'SELECT s01_Products.code,
-                        s01_ProductVariants.variant_id
+                        s01_ProductVariants.variant_id,
+                        s01_Products.name
                 FROM s01_ProductVariants
                 INNER JOIN s01_ProductVariantParts
                 ON s01_ProductVariantParts.variant_id=s01_ProductVariants.variant_id
@@ -64,6 +65,7 @@ function getVariantCodes($all_products_merged, PDO $db) {
 
             $product['variant_code'] = $result['code'];
             $product['variant_id'] = $result['variant_id'];
+            $product['variant_name'] = $result['name'];
 
         }
 
@@ -107,6 +109,7 @@ function addBlankVariantCodes($non_variant_products) {
         $product['option_id'] = '';
         $product['variant_code'] = '';
         $product['variant_id'] = '';
+        $product['variant_name'] = '';
     }
 
     return $non_variant_products;
