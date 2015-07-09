@@ -5,13 +5,9 @@ include '../includes/functions.php';
 $products       = getProductsBetweenInterval($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
 $products       = mergeVariants($products);
 $shipping_total = getShippingTotals($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
-$coupon_total   = getCouponTotals($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
+$coupon_total   = abs(getCouponTotals($_POST['settings:startdate'], $_POST['settings:finishdate'], $db));
 
-$eol = "\n";
-// $eol = '<br>';
-
-// var_dump($shipping_total);
-// var_dump($coupon_total);
+$eol = "<br>";
 
 $products_price_total = $products_quantity_total = 0;
 

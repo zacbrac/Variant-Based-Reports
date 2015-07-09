@@ -128,7 +128,6 @@ function mergeNonVariantProducts(&$non_variant_products) {
 
             if ($non_variant_products[$i]['product_id'] == $non_variant_products[$j]['product_id']) {
                 $non_variant_products[$j]['quantity'] = $non_variant_products[$i]['quantity'] + $non_variant_products[$j]['quantity'];
-                $non_variant_products[$j]['price'] = $non_variant_products[$i]['price'] + $non_variant_products[$j]['price'];
                 $non_variant_products[$j]['line_id'] = $non_variant_products[$i]['line_id'] . ',' . $non_variant_products[$j]['line_id'];
 
                 unset($non_variant_products[$i]);
@@ -194,7 +193,6 @@ function mergeVariants(&$variant_products) {
             if ($variant_products[$i]['variant_code'] == $variant_products[$j]['variant_code'] && $variant_products[$i]['variant_code'] !== '') {
 
                 $variant_products[$j]['quantity'] = $variant_products[$i]['quantity'] + $variant_products[$j]['quantity'];
-                $variant_products[$j]['price'] = $variant_products[$i]['price'] + $variant_products[$j]['price'];
 
                 unset($variant_products[$i]);
 
@@ -230,7 +228,6 @@ function filterNonVariants($all_products_merged) {
             if ($all_products_merged[$i]['variant_code'] == '' && $all_products_merged[$j]['variant_code'] == '' && $all_products_merged[$i]['product_id'] == $all_products_merged[$j]['product_id']) {
 
                 $all_products_merged[$j]['quantity'] = $all_products_merged[$i]['quantity'] + $all_products_merged[$j]['quantity'];
-                $all_products_merged[$j]['price'] = $all_products_merged[$i]['price'] + $all_products_merged[$j]['price'];
 
                 unset($all_products_merged[$i]);
 
@@ -338,7 +335,7 @@ function getCouponTotals($startdate, $finishdate, PDO $db) {
 
     $result = $coupon_totals->fetch(PDO::FETCH_ASSOC);
 
-    return $result['SUM(s01_OrderCoupons.total)'];
+    return $result['SUM(s01_OrderCharges.amount)'];
 
 }
 

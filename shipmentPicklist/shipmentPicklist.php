@@ -4,6 +4,8 @@ include '../includes/functions.php';
 
 $products = getProductsBetweenInterval($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
 
+
+//Sorts products based on variant_code
 $productNames = array();
 
 foreach ($products as $key => $product) {
@@ -23,6 +25,10 @@ foreach ($products as $key => $product) {
 array_multisort($productNames, SORT_ASC, $products);
 
 $DateTime = new DateTime();
+$date = $DateTime->format('l, F d, Y');
+
+// used in page breaking checks
+$next_target = 3;
 
 ?>
 <!DOCTYPE html>
@@ -30,17 +36,37 @@ $DateTime = new DateTime();
 <head>
     <meta charset="UTF-8">
     <style>
-        table {
-            border-collapse: collapse;
+        
+        body {
+            font-size: .9em;
         }
 
-        tr:first-of-type td {
+        table {
+            border-collapse: collapse;
+            page-break-inside:auto;
+            width: 100%;
+        }
+
+        @media all {
+            .page-break { display: none; }
+        }
+
+        @media print {
+            .page-break { display: block; page-break-before: always; }
+        }
+
+        table:first-of-type tr:first-of-type td {
             border-top: 2px solid #000;
             border-bottom: 2px solid #000;
         }
 
         td {
             padding: 10px;
+        }
+
+        tr { 
+            page-break-inside:avoid; 
+            page-break-after:auto 
         }
 
         span.sku, span.name {
@@ -72,7 +98,7 @@ $DateTime = new DateTime();
     <table>
         <tr>
             <td colspan="5"><h1>Pick List - SeagullBook.com</h1></td>
-            <td><?php echo $DateTime->format('l, F d, Y');?></td>
+            <td><?php echo $date; ?></td>
         </tr>
         <tr>
             <td>Quantity</td>
@@ -80,7 +106,7 @@ $DateTime = new DateTime();
             <td align="middle" colspan="2">Options 1 & 2</td>
             <td align="middle" colspan="2">Options 3 & 4</td>
         </tr>
-        <?php foreach ($products as $product) { ?>
+        <?php foreach ($products as $key => $product) { ?>
             <tr>
                 <td align="middle">
                     <?php echo $product['quantity'];?>
@@ -127,7 +153,15 @@ $DateTime = new DateTime();
                 <td valign="top">Section:</td>
                 <td align="middle"><?php echo getCustomFieldValue($product['product_id'], 19, $db); ?></td>
             </tr>
-        <?php } ?>
+            <?php  
+                if ($key == $next_target) {
+                    
+                    $next_target += 5;
+                    echo '</table><div class="page-break"></div><table>';
+
+                }
+            }
+            ?>
     </table>
 </body>
 </html>
