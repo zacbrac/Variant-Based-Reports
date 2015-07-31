@@ -12,14 +12,19 @@ $FinishDate->setTimestamp($_POST['settings:finishdate']);
 switch ($_POST['settings:desired_interval']) {
     case 'hours':
         $interval = 'P1H';
+        break;
     case 'days':
         $interval = 'P1D';
+        break;
     case 'weeks':
         $interval = 'P1W';
+        break;
     case 'months':
         $interval = 'P1M';
+        break;
     case 'years':
         $interval = 'P1Y';
+        break;
     default:
         $interval = null;
 }
@@ -31,21 +36,49 @@ $timestamps_count = count($times);
 
 $csv = '';
 
-$first_wave = getProductsBetweenInterval($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
-$first_wave = mergeVariants($first_wave);
+$ProductData = new GetProductData;
+$ProductDataMerger = new MergeProductData;
+$StoreData = new GetStoreData;
+
+$first_wave = $ProductData->getProductsBetweenInterval($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
+
+$allVariants = $ProductData->getVariantProductsBetweenInterval($startdate, $finishdate, $db);
+$allVariants = $ProductDataMerger->mergeVariantParts($allVariants);
+$allVariants = $ProductData->getVariantCodes($allVariants, $db);
+$allVariants = $ProductDataMerger->mergeVariants($allVariants);
+
+
+$allNonVariants = $ProductData->getNonVariantProducts($first_wave, $allVariants);
+$allNonVariants = $ProductDataMerger->mergeNonVariantProducts($allNonVariants);
+
+
+$first_wave = array_merge($allVariants, $allNonVariants);
+
 
 $first_row = 'PRODUCT_CODE,VARIANT_CODE,PRODUCT_NAME,';
 
 foreach ($first_wave as $key => $product) {
 
-    $row = $product['code'] . ',' . $product['variant_code'] . ',' . $product['name'] . ',';
+    $row = '"' . $product['code'] . '","' . $product['variant_code'] . '","' . $product['name'] . '",';
 
     $match_found = false;
 
     foreach ($times as $key2 => $time) {
 
-        $products = getProductsBetweenInterval($time[0]->getTimestamp(), $time[1]->getTimestamp(), $db);
-        $products = mergeVariants($products);
+        $products = $ProductData->getProductsBetweenInterval($time[0]->getTimestamp(), $time[1]->getTimestamp(), $db);
+
+
+        $allVariants = $ProductData->getVariantProductsBetweenInterval($startdate, $finishdate, $db);
+        $allVariants = $ProductDataMerger->mergeVariantParts($allVariants);
+        $allVariants = $ProductData->getVariantCodes($allVariants, $db);
+        $allVariants = $ProductDataMerger->mergeVariants($allVariants);
+
+
+        $allNonVariants = $ProductData->getNonVariantProducts($products, $allVariants);
+        $allNonVariants = $ProductDataMerger->mergeNonVariantProducts($allNonVariants);
+
+
+        $products = array_merge($allVariants, $allNonVariants);
 
         if ($products !== null) {
 

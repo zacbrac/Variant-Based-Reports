@@ -7,10 +7,6 @@ Example Setup:
 Requires `../db/dbConnect.php`
 
 ```HTML
-<mvt:assign name="l.void" value="miva_output_header( 'Content-Type', 'application/octet-stream' )" />
-<mvt:assign name="l.void" value="miva_output_header( 'Content-Disposition', 'attachment; filename=sales.csv;' )" />
-<mvt:assign name="l.void" value="miva_output_header( 'Content-Transfer-Encoding', 'binary' )" />
-
 <mvt:assign name="l.settings:finishdate" value="l.settings:admin_order:orders[1]:orderdate" />
 <mvt:do file="g.module_library_utilities" name="l.settings:success" value="QuickSortArray( l.settings:admin_order:orders, ':id', 1 )" />
 <mvt:assign name="l.settings:startdate" value="l.settings:admin_order:orders[1]:orderdate" />

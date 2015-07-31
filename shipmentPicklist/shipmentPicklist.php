@@ -2,8 +2,29 @@
 require '../db/dbConnect.php';
 include '../includes/functions.php';
 
-$products = getProductsBetweenInterval($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
+$ProductData = new GetProductData;
+$ProductDataMerger = new MergeProductData;
+$StoreData = new GetStoreData;
 
+
+$startdate = $_POST['settings:startdate'];
+$finishdate = $_POST['settings:finishdate'];
+
+
+$products = $ProductData->getProductsBetweenInterval($startdate, $finishdate, $db);
+
+
+$allVariants = $ProductData->getVariantProductsBetweenInterval($startdate, $finishdate, $db);
+$allVariants = $ProductDataMerger->mergeVariantParts($allVariants);
+$allVariants = $ProductData->getVariantCodes($allVariants, $db);
+$allVariants = $ProductDataMerger->mergeVariants($allVariants);
+
+
+$allNonVariants = $ProductData->getNonVariantProducts($products, $allVariants);
+$allNonVariants = $ProductDataMerger->mergeNonVariantProducts($allNonVariants);
+
+
+$products = array_merge($allVariants, $allNonVariants);
 
 //Sorts products based on variant_code
 $productNames = array();
@@ -97,7 +118,7 @@ $next_target = 3;
 <body>
     <table>
         <tr>
-            <td colspan="5"><h1>Pick List - SeagullBook.com</h1></td>
+            <td colspan="5"><h1>Pick List - Miva Merchant Store</h1></td>
             <td><?php echo $date; ?></td>
         </tr>
         <tr>
@@ -134,14 +155,14 @@ $next_target = 3;
                     <small>Notes</small>
                 </td>
                 <td valign="bottom">Format:</td>
-                <td valign="bottom" align="middle"><?php echo getCustomFieldValue($product['product_id'], 1, $db); ?></td>
+                <td valign="bottom" align="middle"><?php echo $ProductData->getProductCustomFieldValue($product['product_id'], 1, $db); ?></td>
                 <td valign="bottom">QOH:</td>
                 <td valign="bottom" align="middle">
                     <?php
                         if ($product['variant_id'] != 0) {
-                            echo (getVariantBasketInventory($product['code'], $db, $product['variant_id']) + getInventory($product['variant_id'], $db));
+                            echo ($ProductData->getVariantBasketInventory($product['code'], $db, $product['variant_id']) + $ProductData->getInventory($product['variant_id'], $db));
                         } else {
-                            echo (getBasketInventory($product['code'], $db, $product['variant_id']) + getInventory($product['product_id'], $db));
+                            echo ($ProductData->getBasketInventory($product['code'], $db, $product['variant_id']) + $ProductData->getInventory($product['product_id'], $db));
                         }
                     ?>
                 </td>
@@ -149,9 +170,9 @@ $next_target = 3;
             <tr class="target">
                 <td colspan="2"></td>
                 <td valign="top">Author:</td>
-                <td align="middle"><?php echo getCustomFieldValue($product['product_id'], 2, $db); ?></td>
+                <td align="middle"><?php echo $ProductData->getProductCustomFieldValue($product['product_id'], 2, $db); ?></td>
                 <td valign="top">Section:</td>
-                <td align="middle"><?php echo getCustomFieldValue($product['product_id'], 19, $db); ?></td>
+                <td align="middle"><?php echo $ProductData->getProductCustomFieldValue($product['product_id'], 19, $db); ?></td>
             </tr>
             <?php  
                 if ($key == $next_target) {
@@ -165,5 +186,3 @@ $next_target = 3;
     </table>
 </body>
 </html>
-
-

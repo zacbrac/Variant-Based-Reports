@@ -2,27 +2,134 @@
 require '../db/dbConnect.php';
 include '../includes/functions.php';
 
-$products       = getProductsBetweenInterval($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
-$products       = mergeVariants($products);
-$shipping_total = getShippingTotals($_POST['settings:startdate'], $_POST['settings:finishdate'], $db);
-$coupon_total   = abs(getCouponTotals($_POST['settings:startdate'], $_POST['settings:finishdate'], $db));
+$startdate = $_POST['settings:startdate'];
+$finishdate = $_POST['settings:finishdate'];
 
-$eol = "<br>";
+$ProductData = new GetProductData;
+$ProductDataMerger = new MergeProductData;
+$StoreData = new GetStoreData;
 
-$products_price_total = $products_quantity_total = 0;
+$Date = new DateTime;
 
-echo 'Product Code,Variant Code,Name,Quantity Sold,Revenue, Warranty Term' . $eol;
+$StartDate = new DateTime;
+$StartDate = $StartDate->setTimestamp($startdate);
 
-foreach ($products as $product) {
+$FinishDate = new DateTime;
+$FinishDate = $FinishDate->setTimestamp($finishdate);
 
-	echo '"' . $product['code'] . '","' . $product['variant_code'] . '","' . $product['name'] . '","' . $product['quantity'] . '","' . '$' . number_format($product['price'], 2) . '","' . getCustomFieldValue($product['product_id'], 1, $db) . '"' . $eol;
+$shippingTotals = $StoreData->getShippingTotals($startdate, $finishdate, $db);
+$couponTotals = $StoreData->getCouponTotals($startdate, $finishdate, $db);
 
-	$products_price_total += $product['price'];
-	$products_quantity_total += $product['quantity'];
 
-}
+$allProducts = $ProductData->getProductsBetweenInterval($startdate, $finishdate, $db);
 
-echo ',,,"$' . number_format($products_quantity_total, 2) . '","$' . number_format($products_price_total, 2) . '"' . $eol;
-echo $eol . $eol;
-echo 'Shipping,Total Shipping Revenue,,,"$' . number_format($shipping_total, 2) . '"' . $eol;
-echo 'Coupon,Total Coupon Discounts,,,"($' . number_format($coupon_total, 2) . ')"' . $eol;
+
+$allVariants = $ProductData->getVariantProductsBetweenInterval($startdate, $finishdate, $db);
+$allVariants = $ProductDataMerger->mergeVariantParts($allVariants);
+$allVariants = $ProductData->getVariantCodes($allVariants, $db);
+$allVariants = $ProductDataMerger->mergeVariants($allVariants);
+
+
+$allNonVariants = $ProductData->getNonVariantProducts($allProducts, $allVariants);
+$allNonVariants = $ProductDataMerger->mergeNonVariantProducts($allNonVariants);
+
+
+$allProducts = array_merge($allVariants, $allNonVariants);
+
+$quantity_total = $revenue_total = 0;
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Miva Merchant Store Sales Report</title>
+
+    <style>
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        td {
+            padding: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td colspan="3" style="border-bottom: 1px solid black;">
+                <b>Miva Merchant Store - Sales by Product</b>
+            </td>
+            <td align="right" style="border-bottom: 1px solid black;">
+                <?php echo $Date->format('l, F d, Y'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <?php echo $StartDate->format('d-F-Y G:i:s') . ' thru ' . $FinishDate->format('d-F-Y G:i:s'); ?>
+            </td>
+        </tr>
+    </table>
+
+    <table>
+        <tr>
+            <td style="border-bottom: 1px solid black;">SKU</td>
+            <td style="border-bottom: 1px solid black;">Name</td>
+            <td style="border-bottom: 1px solid black;">Quantity Sold</td>
+            <td style="border-bottom: 1px solid black;">Revenue</td>
+        </tr>
+        <?php
+            foreach ($allProducts as $key => $product) {
+                
+                $revenue_total += $product['total_revenue'];
+                $quantity_total += $product['quantity'];
+
+        ?>
+            <tr>
+                <td><?php echo $product['code']; ?></td>
+                <td><?php echo ( $product['variant_name'] ? $product['variant_name'] : $product['name'] ); ?></td>
+                <td align="middle"><?php echo $product['quantity']; ?></td>
+                <td align="middle"><?php echo '$' . number_format($product['total_revenue'], 2); ?></td>
+            </tr>
+        <?php
+            }
+        ?>
+        <tr>
+            <td colspan="2"></td>
+            <td align="middle" style="border-top: 1px solid black;">
+                <?php echo $quantity_total; ?>
+            </td>
+            <td align="middle" style="border-top: 1px solid black;">
+                <?php echo '$' . number_format($revenue_total, 2); ?>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>Shipping</b>
+            </td>
+            <td colspan="2">
+                <b>Total Shipping Revenue</b>
+            </td>
+            <td align="middle">
+                <b><?php echo '$' . number_format(abs($shippingTotals), 2); ?></b>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>Coupon</b>
+            </td>
+            <td colspan="2">
+                <b>Total Coupon Discounts</b>
+            </td>
+            <td align="middle">
+                <b><?php echo '($' . number_format(abs($couponTotals), 2) . ')'; ?></b>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
